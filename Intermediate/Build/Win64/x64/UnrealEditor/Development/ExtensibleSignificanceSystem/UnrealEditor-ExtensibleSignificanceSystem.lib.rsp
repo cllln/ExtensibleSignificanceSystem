@@ -1,0 +1,12 @@
+/NOLOGO
+/errorReport:prompt
+/MACHINE:x64
+/SUBSYSTEM:WINDOWS
+/DEF
+/NAME:"UnrealEditor-ExtensibleSignificanceSystem.dll"
+/IGNORE:4221
+/NODEFAULTLIB
+"..\Intermediate\Build\Win64\x64\UnrealEditor\Development\UnrealEd\SharedPCH.UnrealEd.Project.ValApi.Cpp20.h.obj"
+"F:\UnrealProject\Project\SignificanceSystem\Plugins\ExtensibleSignificanceSystem\Intermediate\Build\Win64\x64\UnrealEditor\Development\ExtensibleSignificanceSystem\Module.ExtensibleSignificanceSystem.cpp.obj"
+"..\Intermediate\Build\Win64\x64\UnrealEditor\Development\Default.rc2.res"
+/OUT:"F:\UnrealProject\Project\SignificanceSystem\Plugins\ExtensibleSignificanceSystem\Intermediate\Build\Win64\x64\UnrealEditor\Development\ExtensibleSignificanceSystem\UnrealEditor-ExtensibleSignificanceSystem.lib"

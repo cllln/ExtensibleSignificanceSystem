@@ -1,0 +1,16 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.ExtensibleSignificanceSystem.cpp.obj": [
+			"ExtensibleSignificanceManager.gen.cpp.obj",
+			"ExtensibleSignificanceSettings.gen.cpp.obj",
+			"ExtensibleSignificanceSubsystem.gen.cpp.obj",
+			"ExtensibleSignificanceSystem.init.gen.cpp.obj",
+			"PerModuleInline.gen.cpp.obj",
+			"ExtensibleSignificanceManager.cpp.obj",
+			"ExtensibleSignificanceSettings.cpp.obj",
+			"ExtensibleSignificanceSubsystem.cpp.obj",
+			"ExtensibleSignificanceSystem.cpp.obj"
+		]
+	}
+}

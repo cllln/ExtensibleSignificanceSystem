@@ -1,0 +1,9 @@
+{
+	"RemapUnityFiles": 
+	{
+		"Module.ExtensibleSignificanceSystem.cpp.obj": [
+			"PerModuleInline.gen.cpp.obj",
+			"ExtensibleSignificanceSystem.cpp.obj"
+		]
+	}
+}
