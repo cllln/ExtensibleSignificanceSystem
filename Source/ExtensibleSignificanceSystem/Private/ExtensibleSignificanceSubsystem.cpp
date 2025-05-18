@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ExtensibleSignificanceSubsystem.h"
 
 #include "EngineUtils.h"
+#include "ExtensibleOptimizationStrategies.h"
 #include "ExtensibleSignificanceSystem.h"
 #include "GameFramework/MovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -308,6 +308,11 @@ void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSign
 			if (SignificanceSettingForSpecifyClass->BucketSettings.IsValidIndex(NewLod))
 			{
 				const FSignificanceBucketSetting& SignificanceBucketSetting = SignificanceSettingForSpecifyClass->BucketSettings[NewLod];
+
+				for (auto Element : SignificanceBucketSetting.OptimizationStrategy)
+				{
+					Element->HandleOptimization(ObjectInfo, OldLod, NewLod);
+				}
 
 				const float TickInterval = SignificanceBucketSetting.ActorTickInterval + FMath::FRandRange(-SignificanceBucketSetting.TickIntervalOffset, SignificanceBucketSetting.TickIntervalOffset);
 				SetTargetActorTickInterval(TargetActor, TickInterval, ObjectInfo->ShouldBeLOD);

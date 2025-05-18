@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -36,6 +36,7 @@ public:
 	static const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount = 5);
 
 	APlayerController* GetPlayerController() const;
+	
 protected:
 	void UpdateSignificance(const float DeltaTime);
 	

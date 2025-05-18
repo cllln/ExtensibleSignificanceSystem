@@ -52,6 +52,10 @@ struct FSignificanceBucketSetting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	float Distance = 1500.0f;
 
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
+	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategy;
+	
 	// 是否显示Mesh
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	bool bShowMesh = false;
@@ -90,6 +94,16 @@ struct FSignificanceSettingForSpecifyClass
 	int32 GetBucketIndex(const int32 Index, const float Dist, int32& OutShouldBeLod) const;
 };
 
+UCLASS(Blueprintable, BlueprintType, Abstract)
+class USignificanceOptimizationStrategySettings : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = SignificanceSystem, meta=(AllowAbstract))
+	TMap<FSoftClassPath, FSignificanceSettingForSpecifyClass> SignificanceSettings;
+};
+
 /**
  * Default settings for the Extensible Significance
  */
@@ -106,4 +120,7 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem, meta=(AllowAbstract))
 	TMap<FSoftClassPath, FSignificanceSettingForSpecifyClass> SignificanceSettings;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	TSubclassOf<USignificanceOptimizationStrategySettings> OptimizationStrategySettingsClass;
 };
