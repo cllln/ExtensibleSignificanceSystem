@@ -31,7 +31,7 @@ void UTickIntervalOptimizationStrategy::SetTargetActorTickInterval(AActor* Targe
 	for (UActorComponent* TempComponent : TargetActor->GetComponents())
 	{
 		// Objects in the screen, if you lower the tick, you will obviously see that the movement is not smooth
-		if (bSkipMovementComponent && TempComponent->IsA(UMovementComponent::StaticClass()))
+		if (TargetActor->WasRecentlyRendered(0.01f) && bSkipMovementComponent && TempComponent->IsA(UMovementComponent::StaticClass()))
 		{
 			TempComponent->SetComponentTickIntervalAndCooldown(0.0f);
 			continue;
