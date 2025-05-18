@@ -45,32 +45,16 @@ struct FSignificanceBucketSetting
 	GENERATED_BODY()
 
 	// 容纳的最多对象个数
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	int32 BucketSize = 5;
 
 	// 在当前桶的距离限制
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	float Distance = 1500.0f;
 
-
+	// 当前桶的优化策略
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
 	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategy;
-	
-	// 是否显示Mesh
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	bool bShowMesh = false;
-
-	// 是否优化动画Tick
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	bool bOptimizeAnim = true;
-	
-	// Tick 间隔最小值
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	float ActorTickInterval = 0.0f;
-
-	// Tick 间隔的偏移，主要是为了分散的更开一点
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	float TickIntervalOffset = 0.0f;
 };
 
 
@@ -80,15 +64,15 @@ struct FSignificanceSettingForSpecifyClass
 	GENERATED_BODY()
 
 	// Tag
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	FName Tag;
 
 	// // 是否显示对距离的影响因子
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	// float RenderFactor = 5000.0f;
 	
 	// 每个等级
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	TArray<FSignificanceBucketSetting> BucketSettings;
 
 	int32 GetBucketIndex(const int32 Index, const float Dist, int32& OutShouldBeLod) const;
@@ -100,7 +84,7 @@ class USignificanceOptimizationStrategySettings : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = SignificanceSystem, meta=(AllowAbstract))
+	UPROPERTY(EditAnywhere, Category = SignificanceSystem, meta=(AllowAbstract))
 	TMap<FSoftClassPath, FSignificanceSettingForSpecifyClass> SignificanceSettings;
 };
 
@@ -118,9 +102,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	FSignificanceSystemSetting SignificanceSystemSetting;
 	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem, meta=(AllowAbstract))
-	TMap<FSoftClassPath, FSignificanceSettingForSpecifyClass> SignificanceSettings;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	TSubclassOf<USignificanceOptimizationStrategySettings> OptimizationStrategySettingsClass;
 };

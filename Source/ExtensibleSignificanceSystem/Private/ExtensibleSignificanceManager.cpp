@@ -28,7 +28,7 @@ void UExtensibleSignificanceManager::Update(TArrayView<const FTransform> InViewp
 			{
 				if (FManagedObjectInfo* ManagedObjectInfo = SortedObjects[Index]; ManagedObjectInfo && ManagedObjectInfo->GetObject())
 				{
-					if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = UExtensibleSignificanceSubsystem::GetSignificanceSettingForSpecifyClass(ManagedObjectInfo->GetObject()->GetClass()))
+					if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = UExtensibleSignificanceSubsystem::GetSubsystem(this)->GetSignificanceSettingForSpecifyClass(ManagedObjectInfo->GetObject()->GetClass()))
 					{
 						if (FExtendedManagedObject* ExtObj = static_cast<FExtendedManagedObject*>(ManagedObjectInfo))
 						{

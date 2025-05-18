@@ -5,7 +5,6 @@
 #include "EngineUtils.h"
 #include "ExtensibleOptimizationStrategies.h"
 #include "ExtensibleSignificanceSystem.h"
-#include "GameFramework/MovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -99,16 +98,25 @@ const FSignificanceSettingForSpecifyClass* UExtensibleSignificanceSubsystem::Get
 	}
 	
 	const UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetDefault<UExtensibleSignificanceSettings>();
-    if (!ExtensibleSignificanceSettings)
+    if (!ExtensibleSignificanceSettings || !ExtensibleSignificanceSettings->OptimizationStrategySettingsClass)
     {
     	return nullptr;
     }
-
+ 
+	if (!OptimizationStrategySettings)
+	{
+		OptimizationStrategySettings = NewObject<USignificanceOptimizationStrategySettings>(this, ExtensibleSignificanceSettings->OptimizationStrategySettingsClass, FName("OptimizationStrategySettings"));
+		if (!OptimizationStrategySettings)
+		{
+			return nullptr;	
+		}
+	}
+	
 	UClass* QueryClass = TargetClass;
 	for(int32 Index = 0; Index <= RecursionSuperCount; Index++)
 	{
 		const FSoftClassPath ClassPath(QueryClass);
-		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = ExtensibleSignificanceSettings->SignificanceSettings.Find(ClassPath))
+		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = OptimizationStrategySettings->SignificanceSettings.Find(ClassPath))
 		{
 			return SignificanceSettingForSpecifyClass;
 		}
@@ -313,102 +321,7 @@ void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSign
 				{
 					Element->HandleOptimization(ObjectInfo, OldLod, NewLod);
 				}
-
-				const float TickInterval = SignificanceBucketSetting.ActorTickInterval + FMath::FRandRange(-SignificanceBucketSetting.TickIntervalOffset, SignificanceBucketSetting.TickIntervalOffset);
-				SetTargetActorTickInterval(TargetActor, TickInterval, ObjectInfo->ShouldBeLOD);
-
-				SetMeshVisibility(TargetActor, SignificanceBucketSetting.bShowMesh);
-				
-				SetAnimTickOptimize(TargetActor, SignificanceBucketSetting.bOptimizeAnim);
 			}
 		}
 	}		
 }
-
-void UExtensibleSignificanceSubsystem::SetTargetActorTickInterval(AActor* TargetActor, const float TickInterval, const int32 ShouldBeLod)
-{
-	if (!IsValid(TargetActor))
-	{
-		return;
-	}
-	
-	// 设置tick间隔
-	TargetActor->SetActorTickInterval(TickInterval);
-	for (UActorComponent* TempComponent : TargetActor->GetComponents())
-	{
-		// 原本应该在最高优先级的桶中的Actor，不要修改移动的tick了，最高优先级桶中的对象极有可能在屏幕内，如果降低tick会很明显看到移动不平滑。
-		if (/*ShouldBeLod == 0 && !FMath::IsNearlyZero(TickInterval) &&*/ TempComponent->IsA(UMovementComponent::StaticClass()))
-		{
-			continue;
-		}
-		
-		float FinalTickInterval = TickInterval;
-		if (const UActorComponent* DefaultObject = Cast<UActorComponent>(TempComponent->GetClass()->GetDefaultObject()))
-		{
-			FinalTickInterval = FMath::Max(FinalTickInterval, DefaultObject->GetComponentTickInterval());
-		}
-		TempComponent->SetComponentTickIntervalAndCooldown(FinalTickInterval);
-	}
-}
-
-void UExtensibleSignificanceSubsystem::SetAnimTickOptimize(AActor* TargetActor, const bool bOptimize)
-{
-	if (!IsValid(TargetActor))
-	{
-		return;
-	}
-	
-	for (UActorComponent* TempComponent : TargetActor->GetComponents())
-	{
-		if (USkinnedMeshComponent* SkinMeshComponent = Cast<USkinnedMeshComponent>(TempComponent))
-		{
-			if (bOptimize)
-			{
-				SkinMeshComponent->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickPoseWhenRendered;
-
-				//默认为4。当更新率（DesiredEvaluationRate）小于这个值时，允许内插，大于或等于则不允许内插。0相当于完全禁用内插。
-				if (SkinMeshComponent->AnimUpdateRateParams)
-				{
-					SkinMeshComponent->AnimUpdateRateParams->MaxEvalRateForInterpolation = 0; 
-				}
-			}
-			else
-			{
-				if (const USkinnedMeshComponent* DefaultObject = Cast<USkinnedMeshComponent>(SkinMeshComponent->GetClass()->GetDefaultObject()))
-				{
-					SkinMeshComponent->VisibilityBasedAnimTickOption = DefaultObject->VisibilityBasedAnimTickOption;
-					
-					if (SkinMeshComponent->AnimUpdateRateParams)
-					{
-						SkinMeshComponent->AnimUpdateRateParams->MaxEvalRateForInterpolation = 3; 	
-					}
-				}	
-			}
-		}
-	}
-}
-
-void UExtensibleSignificanceSubsystem::SetMeshVisibility(AActor* TargetActor, const bool bVisibility)
-{
-	if (!IsValid(TargetActor))
-	{
-		return;
-	}
-	
-	for (UActorComponent* TempComponent : TargetActor->GetComponents())
-	{
-		if (USkinnedMeshComponent* MeshComponent = Cast<USkinnedMeshComponent>(TempComponent))
-		{
-			MeshComponent->SetVisibility(bVisibility);
-		}
-		else if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(TempComponent))
-		{
-			StaticMeshComponent->SetVisibility(bVisibility);
-		}
-		else if (UChildActorComponent* ChildActorComponent = Cast<UChildActorComponent>(TempComponent))
-		{
-			ChildActorComponent->SetVisibility(bVisibility);
-		}
-	}
-}
-

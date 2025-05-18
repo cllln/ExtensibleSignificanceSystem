@@ -33,7 +33,7 @@ public:
 	
 	virtual TStatId GetStatId() const override;
 
-	static const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount = 5);
+	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount = 5);
 
 	APlayerController* GetPlayerController() const;
 	
@@ -65,10 +65,6 @@ protected:
 	// 处理Lod变化
 	void HandlePostLodChange(const UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, int32 OldLod, int32 NewLod);
 
-	// 设置tick频率
-	static void SetTargetActorTickInterval(AActor* TargetActor, const float TickInterval, const int32 ShouldBeLod);
-	
-	static void SetAnimTickOptimize(AActor* TargetActor, const bool bOptimize);
-	
-	static void SetMeshVisibility(AActor* TargetActor, const bool bVisibility);
+	UPROPERTY()
+	USignificanceOptimizationStrategySettings* OptimizationStrategySettings; 
 };
