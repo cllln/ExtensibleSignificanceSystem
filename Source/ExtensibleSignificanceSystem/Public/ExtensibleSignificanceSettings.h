@@ -48,13 +48,13 @@ struct FSignificanceBucketSetting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	int32 BucketSize = 5;
 
-	// 在当前桶的距离限制
+	// 在当前桶的重要度限制
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
-	float Distance = 1500.0f;
+	float SignificanceLimit = 1500.0f;
 
 	// 当前桶的优化策略
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
-	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategy;
+	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategies;
 };
 
 
@@ -67,15 +67,15 @@ struct FSignificanceSettingForSpecifyClass
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	FName Tag;
 
-	// // 是否显示对距离的影响因子
-	// UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
-	// float RenderFactor = 5000.0f;
+	/* 重要度计算策略*/
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
+	TArray<class USignificanceCalculateStrategyBase*> SignificanceCalculateStrategies;
 	
 	// 每个等级
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	TArray<FSignificanceBucketSetting> BucketSettings;
 
-	int32 GetBucketIndex(const int32 Index, const float Dist, int32& OutShouldBeLod) const;
+	int32 GetBucketIndex(const int32 Index, const float Significance, int32& OutShouldBeLod) const;
 };
 
 UCLASS(Blueprintable, BlueprintType, Abstract)

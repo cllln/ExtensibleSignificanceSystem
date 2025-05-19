@@ -49,6 +49,7 @@ public:
 	static FSignificanceSystemSetting& GetSignificanceSystemSetting();
 
 	// Returns the Lod value for a given object, returns 0 if object is not managed
+	UFUNCTION(BlueprintCallable, Category = SignificanceSystem)
 	float GetLod(UObject* Object) const;
 
 	// Returns true if the object is being tracked, placing the lod value in OutLod (or 0 if object is not managed)

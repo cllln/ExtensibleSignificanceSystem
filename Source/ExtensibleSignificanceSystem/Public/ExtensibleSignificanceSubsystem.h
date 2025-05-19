@@ -60,7 +60,7 @@ protected:
 	
 protected:
 	// 计算重要度
-	float CalcSignificance(const USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& Viewpoint) const;
+	float CalcSignificance(USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& Viewpoint);
 
 	// 处理重要度变化
 	void HandlePostSignificanceChange(const USignificanceManager::FManagedObjectInfo* ObjectInfo, float OldSignificance, float NewSignificance, bool bSignificanceChanged) const;

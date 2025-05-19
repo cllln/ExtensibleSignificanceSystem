@@ -15,7 +15,7 @@ bool FSignificanceSystemSetting::ShouldCheck(const float DeltaTime)
 	return bShouldCheck;
 }
 
-int32 FSignificanceSettingForSpecifyClass::GetBucketIndex(const int32 Index, const float Dist, int32& OutShouldBeLod) const
+int32 FSignificanceSettingForSpecifyClass::GetBucketIndex(const int32 Index, const float Significance, int32& OutShouldBeLod) const
 {
 	int32 TotalIndex = 0;
 	int32 BucketIndex = -1;
@@ -24,7 +24,7 @@ int32 FSignificanceSettingForSpecifyClass::GetBucketIndex(const int32 Index, con
 	{
 		BucketIndex++;
 		TotalIndex += Element.BucketSize;
-		if (Dist <= Element.Distance)
+		if (Significance <= Element.SignificanceLimit)
 		{
 			if (BucketIndex < OutShouldBeLod)
 			{

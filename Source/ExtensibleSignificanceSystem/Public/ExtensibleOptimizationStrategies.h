@@ -7,7 +7,7 @@
 #include "ExtensibleOptimizationStrategies.generated.h"
 
 /**
- * optimization strategy base class
+ * Optimization Strategy Base Class
  */
 UCLASS(Abstract, BlueprintType, EditInlineNew)
 class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleOptimizationStrategyBase : public UObject

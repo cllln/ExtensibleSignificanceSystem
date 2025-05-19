@@ -5,6 +5,7 @@
 #include "EngineUtils.h"
 #include "ExtensibleOptimizationStrategies.h"
 #include "ExtensibleSignificanceSystem.h"
+#include "SignificanceCalculateStrategies.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -282,25 +283,20 @@ void UExtensibleSignificanceSubsystem::UnRegisterAllSignificance()
 	}
 }
 
-float UExtensibleSignificanceSubsystem::CalcSignificance(const USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& Viewpoint) const
+float UExtensibleSignificanceSubsystem::CalcSignificance(USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& Viewpoint)
 {
 	float OutSignificance = 0.0f;
-	if (!ObjectInfo) return OutSignificance;
+	const UExtensibleSignificanceManager::FExtendedManagedObject* ExtendedManagedObject = static_cast<UExtensibleSignificanceManager::FExtendedManagedObject*>(ObjectInfo);
+	if (!ExtendedManagedObject) return OutSignificance;
 	
-	if (const AActor* TargetActor = Cast<AActor>(ObjectInfo->GetObject()))
+	if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClassByTag(ObjectInfo->GetTag()))
 	{
-		// if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClass(TargetActor->GetClass()))
-		// {
-			// 与视口的距离条件。
-			OutSignificance = FVector::Dist(Viewpoint.GetLocation(), TargetActor->GetActorLocation());
-
-			// // 是否在窗口渲染，影响因子
-			// if (TargetActor->WasRecentlyRendered(0.1f))
-			// {
-			// 	OutSignificance -= SignificanceSettingForSpecifyClass->RenderFactor;
-			// }
-		// }
+		for (const auto Element : SignificanceSettingForSpecifyClass->SignificanceCalculateStrategies)
+		{
+			OutSignificance += Element->CalculateSignificanceFactor(ExtendedManagedObject, Viewpoint);
+		}
 	}
+
 	return OutSignificance;
 }
 
@@ -311,19 +307,14 @@ void UExtensibleSignificanceSubsystem::HandlePostSignificanceChange(const USigni
 
 void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, const int32 OldLod, const int32 NewLod)
 {
-	if (AActor* TargetActor = Cast<AActor>(ObjectInfo->GetObject()))
+	if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClassByTag(ObjectInfo->GetTag()))
 	{
-		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClassByTag(ObjectInfo->GetTag()))
+		if (SignificanceSettingForSpecifyClass->BucketSettings.IsValidIndex(NewLod))
 		{
-			if (SignificanceSettingForSpecifyClass->BucketSettings.IsValidIndex(NewLod))
+			for (const FSignificanceBucketSetting& SignificanceBucketSetting = SignificanceSettingForSpecifyClass->BucketSettings[NewLod]; const auto Element : SignificanceBucketSetting.OptimizationStrategies)
 			{
-				const FSignificanceBucketSetting& SignificanceBucketSetting = SignificanceSettingForSpecifyClass->BucketSettings[NewLod];
-
-				for (auto Element : SignificanceBucketSetting.OptimizationStrategy)
-				{
-					Element->HandleOptimization(ObjectInfo, OldLod, NewLod);
-				}
+				Element->HandleOptimization(ObjectInfo, OldLod, NewLod);
 			}
 		}
-	}		
+	}
 }
