@@ -21,25 +21,35 @@ void UExtensibleSignificanceManager::Update(TArrayView<const FTransform> InViewp
 
 	{
 		SCOPE_CYCLE_COUNTER(STAT_ExtensibleSignificanceManager_PostLodFunction);
+
+		UExtensibleSignificanceSubsystem* ExtensibleSignificanceSubsystem = UExtensibleSignificanceSubsystem::GetSubsystem(this);
+		if (!ExtensibleSignificanceSubsystem)
+		{
+			return;
+		}
+		
 		for (const FName TempTag : RegisteredTags)
 		{
+			const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = ExtensibleSignificanceSubsystem->GetSignificanceSettingForSpecifyClassByTag(TempTag);
+			if (!SignificanceSettingForSpecifyClass)
+			{
+				continue;
+			}
+			
 			const TArray<FManagedObjectInfo*>& SortedObjects = GetManagedObjects(TempTag);
 			for (int Index = 0; Index < SortedObjects.Num(); ++Index)
 			{
 				if (FManagedObjectInfo* ManagedObjectInfo = SortedObjects[Index]; ManagedObjectInfo && ManagedObjectInfo->GetObject())
 				{
-					if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = UExtensibleSignificanceSubsystem::GetSubsystem(this)->GetSignificanceSettingForSpecifyClass(ManagedObjectInfo->GetObject()->GetClass()))
+					if (FExtendedManagedObject* ExtObj = static_cast<FExtendedManagedObject*>(ManagedObjectInfo))
 					{
-						if (FExtendedManagedObject* ExtObj = static_cast<FExtendedManagedObject*>(ManagedObjectInfo))
-						{
-							const int32 OldLOD = ExtObj->LOD;
-							ExtObj->LOD = SignificanceSettingForSpecifyClass->GetBucketIndex(Index, ExtObj->GetSignificance(), ExtObj->ShouldBeLOD);
+						const int32 OldLOD = ExtObj->LOD;
+						ExtObj->LOD = SignificanceSettingForSpecifyClass->GetBucketIndex(Index, ExtObj->GetSignificance(), ExtObj->ShouldBeLOD);
 
-							if (ExtObj->PostLodFunction)
-							{
-								ExtObj->PostLodFunction(ExtObj, OldLOD, ExtObj->LOD);
-							}	
-						}
+						if (ExtObj->PostLodFunction)
+						{
+							ExtObj->PostLodFunction(ExtObj, OldLOD, ExtObj->LOD);
+						}	
 					}
 				}
 			}

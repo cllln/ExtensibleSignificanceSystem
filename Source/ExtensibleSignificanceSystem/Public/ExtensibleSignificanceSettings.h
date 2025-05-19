@@ -84,8 +84,17 @@ class USignificanceOptimizationStrategySettings : public UObject
 	GENERATED_BODY()
 
 public:
+	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClassByTag(const FName Tag);
+	
+	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, const int32 RecursionSuperCount = 5);
+	
+protected:
 	UPROPERTY(EditAnywhere, Category = SignificanceSystem, meta=(AllowAbstract))
 	TMap<FSoftClassPath, FSignificanceSettingForSpecifyClass> SignificanceSettings;
+
+private:
+	UPROPERTY(Transient)
+	TMap<FName, FSignificanceSettingForSpecifyClass> SignificanceSettingsByTag;
 };
 
 /**

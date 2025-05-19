@@ -41,6 +41,36 @@ int32 FSignificanceSettingForSpecifyClass::GetBucketIndex(const int32 Index, con
 	return BucketSettings.Num() - 1;
 }
 
+const FSignificanceSettingForSpecifyClass* USignificanceOptimizationStrategySettings::GetSignificanceSettingForSpecifyClassByTag(const FName Tag)
+{
+	return SignificanceSettingsByTag.Find(Tag);
+}
+
+const FSignificanceSettingForSpecifyClass* USignificanceOptimizationStrategySettings::GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, const int32 RecursionSuperCount)
+{
+	const UClass* QueryClass = TargetClass;
+	for(int32 Index = 0; Index <= RecursionSuperCount; Index++)
+	{
+		const FSoftClassPath ClassPath(QueryClass);
+		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = SignificanceSettings.Find(ClassPath))
+		{
+			if (!SignificanceSettingsByTag.Find(SignificanceSettingForSpecifyClass->Tag))
+			{
+				SignificanceSettingsByTag.Emplace(SignificanceSettingForSpecifyClass->Tag, *SignificanceSettingForSpecifyClass);
+			}
+			return SignificanceSettingForSpecifyClass;
+		}
+
+		QueryClass = QueryClass->GetSuperClass();
+		if (QueryClass == nullptr || QueryClass == AActor::StaticClass())
+		{
+			break;
+		}
+	}
+
+	return nullptr;
+}
+
 UExtensibleSignificanceSettings::UExtensibleSignificanceSettings()
 {
 	CategoryName = TEXT("Plugins");

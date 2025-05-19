@@ -33,10 +33,13 @@ public:
 	
 	virtual TStatId GetStatId() const override;
 
+	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClassByTag(const FName Tag);
+	
 	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount = 5);
 
 	APlayerController* GetPlayerController() const;
-	
+
+	USignificanceOptimizationStrategySettings* GetSignificanceOptimizationStrategySetting();
 protected:
 	void UpdateSignificance(const float DeltaTime);
 	

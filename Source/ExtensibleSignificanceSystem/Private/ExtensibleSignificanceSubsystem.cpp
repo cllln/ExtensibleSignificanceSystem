@@ -89,7 +89,18 @@ TStatId UExtensibleSignificanceSubsystem::GetStatId() const
 	RETURN_QUICK_DECLARE_CYCLE_STAT(UExtensibleSignificanceSubsystem, STATGROUP_Tickables);
 }
 
-const FSignificanceSettingForSpecifyClass* UExtensibleSignificanceSubsystem::GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount)
+const FSignificanceSettingForSpecifyClass* UExtensibleSignificanceSubsystem::GetSignificanceSettingForSpecifyClassByTag(const FName Tag)
+{
+	USignificanceOptimizationStrategySettings* RestoredOptimizationStrategySettings = GetSignificanceOptimizationStrategySetting();
+	if (!OptimizationStrategySettings)
+	{
+		return nullptr;	
+	}
+	
+	return RestoredOptimizationStrategySettings->GetSignificanceSettingForSpecifyClassByTag(Tag);
+}
+
+const FSignificanceSettingForSpecifyClass* UExtensibleSignificanceSubsystem::GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, const int32 RecursionSuperCount)
 {
 	SCOPE_CYCLE_COUNTER(STAT_ExtensibleSignificanceManager_GetSpecifyClass);
 	if (TargetClass == nullptr)
@@ -97,43 +108,34 @@ const FSignificanceSettingForSpecifyClass* UExtensibleSignificanceSubsystem::Get
 		return nullptr;
 	}
 	
-	const UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetDefault<UExtensibleSignificanceSettings>();
-    if (!ExtensibleSignificanceSettings || !ExtensibleSignificanceSettings->OptimizationStrategySettingsClass)
-    {
-    	return nullptr;
-    }
- 
+	USignificanceOptimizationStrategySettings* RestoredOptimizationStrategySettings = GetSignificanceOptimizationStrategySetting();
 	if (!OptimizationStrategySettings)
 	{
-		OptimizationStrategySettings = NewObject<USignificanceOptimizationStrategySettings>(this, ExtensibleSignificanceSettings->OptimizationStrategySettingsClass, FName("OptimizationStrategySettings"));
-		if (!OptimizationStrategySettings)
-		{
-			return nullptr;	
-		}
+		return nullptr;	
 	}
 	
-	UClass* QueryClass = TargetClass;
-	for(int32 Index = 0; Index <= RecursionSuperCount; Index++)
-	{
-		const FSoftClassPath ClassPath(QueryClass);
-		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = OptimizationStrategySettings->SignificanceSettings.Find(ClassPath))
-		{
-			return SignificanceSettingForSpecifyClass;
-		}
-
-		QueryClass = QueryClass->GetSuperClass();
-		if (QueryClass == nullptr || QueryClass == AActor::StaticClass())
-		{
-			break;
-		}
-	}
-
-	return nullptr;
+	return RestoredOptimizationStrategySettings->GetSignificanceSettingForSpecifyClass(TargetClass, RecursionSuperCount);
 }
 
 APlayerController* UExtensibleSignificanceSubsystem::GetPlayerController() const
 {
 	return UGameplayStatics::GetPlayerController(GetWorld(), 0);
+}
+
+USignificanceOptimizationStrategySettings* UExtensibleSignificanceSubsystem::GetSignificanceOptimizationStrategySetting()
+{
+	if (!OptimizationStrategySettings)
+	{
+		const UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetDefault<UExtensibleSignificanceSettings>();
+		if (!ExtensibleSignificanceSettings || !ExtensibleSignificanceSettings->OptimizationStrategySettingsClass)
+		{
+			return nullptr;
+		}
+		
+		OptimizationStrategySettings = NewObject<USignificanceOptimizationStrategySettings>(this, ExtensibleSignificanceSettings->OptimizationStrategySettingsClass, FName("OptimizationStrategySettings"));
+	}
+	
+	return OptimizationStrategySettings;
 }
 
 void UExtensibleSignificanceSubsystem::UpdateSignificance(const float DeltaTime)
@@ -311,7 +313,7 @@ void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSign
 {
 	if (AActor* TargetActor = Cast<AActor>(ObjectInfo->GetObject()))
 	{
-		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClass(TargetActor->GetClass()))
+		if (const FSignificanceSettingForSpecifyClass* SignificanceSettingForSpecifyClass = GetSignificanceSettingForSpecifyClassByTag(ObjectInfo->GetTag()))
 		{
 			if (SignificanceSettingForSpecifyClass->BucketSettings.IsValidIndex(NewLod))
 			{
