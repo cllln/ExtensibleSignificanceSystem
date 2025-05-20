@@ -31,7 +31,7 @@ void UTickIntervalOptimizationStrategy::SetTargetActorTickInterval(AActor* Targe
 	for (UActorComponent* TempComponent : TargetActor->GetComponents())
 	{
 		// Objects in the screen, if you lower the tick, you will obviously see that the movement is not smooth
-		if (TargetActor->WasRecentlyRendered(0.01f) && bSkipMovementComponent && TempComponent->IsA(UMovementComponent::StaticClass()))
+		if (bSkipMovementComponent && TargetActor->WasRecentlyRendered(0.01f) && TempComponent->IsA(UMovementComponent::StaticClass()))
 		{
 			TempComponent->SetComponentTickIntervalAndCooldown(0.0f);
 			continue;
@@ -62,20 +62,30 @@ void UVisibilityOptimizationStrategy::SetVisibility(AActor* TargetActor) const
 	}
 
 
-	TargetActor->SetActorHiddenInGame(bHideActor);
+	if (bShouldSetActorVisibility)
+	{
+		TargetActor->SetActorHiddenInGame(bHideActor);	
+	}
 	for (UActorComponent* TempComponent : TargetActor->GetComponents())
 	{
-		if (USkinnedMeshComponent* MeshComponent = Cast<USkinnedMeshComponent>(TempComponent))
+		if (bShouldSetMeshVisibility)
 		{
-			MeshComponent->SetVisibility(!bHideMesh);
+			if (USkinnedMeshComponent* MeshComponent = Cast<USkinnedMeshComponent>(TempComponent))
+			{
+				MeshComponent->SetVisibility(!bHideMesh);
+			}
+			else if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(TempComponent))
+			{
+				StaticMeshComponent->SetVisibility(!bHideMesh);
+			}
 		}
-		else if (UStaticMeshComponent* StaticMeshComponent = Cast<UStaticMeshComponent>(TempComponent))
+
+		if (bShouldSetChildActorCompVisibility)
 		{
-			StaticMeshComponent->SetVisibility(!bHideMesh);
-		}
-		else if (UChildActorComponent* ChildActorComponent = Cast<UChildActorComponent>(TempComponent))
-		{
-			ChildActorComponent->SetVisibility(!bHideChildActorComp);
+			if (UChildActorComponent* ChildActorComponent = Cast<UChildActorComponent>(TempComponent))
+			{
+				ChildActorComponent->SetVisibility(!bHideChildActorComp);
+			}	
 		}
 	}
 }
@@ -99,12 +109,24 @@ void UAnimationOptimizationStrategy::SetAnimOptimization(AActor* TargetActor) co
 	{
 		if (USkinnedMeshComponent* SkinMeshComponent = Cast<USkinnedMeshComponent>(TempComponent))
 		{
+			if (USkeletalMeshComponent* SkeletalMeshComponent = Cast<USkeletalMeshComponent>(SkinMeshComponent))
+			{
+				SkeletalMeshComponent->bSkipKinematicUpdateWhenInterpolating = bSkipKinematicUpdateWhenInterpolating;
+				SkeletalMeshComponent->bSkipBoundsUpdateWhenInterpolating = bSkipBoundsUpdateWhenInterpolating;
+			}
+			
 			SkinMeshComponent->VisibilityBasedAnimTickOption = VisibilityBasedAnimTickOption;
-
+			SkinMeshComponent->bComponentUseFixedSkelBounds = bComponentUseFixedSkelBounds;
+			SkinMeshComponent->bConsiderAllBodiesForBounds = bConsiderAllBodiesForBounds;
+			SkinMeshComponent->bUseScreenRenderStateForUpdate = bUseScreenRenderStateForUpdate;
+			SkinMeshComponent->bEnableUpdateRateOptimizations = bEnableUpdateRateOptimizations;
+			SkinMeshComponent->bRenderStatic = bRenderStatic;
+			
 			//The default is 4. When the update rate (DesiredEvaluationRate) is less than this value, interpolation is allowed, and if it is greater than or equal, interpolation is not allowed. 0 is equivalent to completely disabling interpolation.
 			if (SkinMeshComponent->AnimUpdateRateParams)
 			{
-				SkinMeshComponent->AnimUpdateRateParams->MaxEvalRateForInterpolation = MaxEvalRateForInterpolation; 
+				SkinMeshComponent->AnimUpdateRateParams->MaxEvalRateForInterpolation = MaxEvalRateForInterpolation;
+				SkinMeshComponent->AnimUpdateRateParams->BaseNonRenderedUpdateRate = BaseNonRenderedUpdateRate;
 			}
 		}
 	}
