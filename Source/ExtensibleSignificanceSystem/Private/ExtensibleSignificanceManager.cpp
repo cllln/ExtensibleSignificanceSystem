@@ -1,7 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ExtensibleSignificanceManager.h"
-
+#include "ExtensibleSignificanceSettings.h"
 #include "ExtensibleSignificanceSubsystem.h"
 
 DECLARE_CYCLE_STAT(TEXT("Extensible Significance Update Total"), STAT_ExtensibleSignificanceManager_Update, STATGROUP_SignificanceManager);
@@ -75,12 +75,6 @@ UExtensibleSignificanceManager* UExtensibleSignificanceManager::GetExtensibleSig
 
 	UExtensibleSignificanceManager* Manager = Get<UExtensibleSignificanceManager>(World);
 	return Manager;
-}
-
-FSignificanceSystemSetting& UExtensibleSignificanceManager::GetSignificanceSystemSetting()
-{
-	UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetMutableDefault<UExtensibleSignificanceSettings>();
-	return ExtensibleSignificanceSettings->SignificanceSystemSetting;
 }
 
 float UExtensibleSignificanceManager::GetLod(UObject* Object) const

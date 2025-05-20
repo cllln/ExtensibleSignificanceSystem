@@ -101,7 +101,7 @@ void UAnimationOptimizationStrategy::SetAnimOptimization(AActor* TargetActor) co
 		{
 			SkinMeshComponent->VisibilityBasedAnimTickOption = VisibilityBasedAnimTickOption;
 
-			//默认为4。当更新率（DesiredEvaluationRate）小于这个值时，允许内插，大于或等于则不允许内插。0相当于完全禁用内插。
+			//The default is 4. When the update rate (DesiredEvaluationRate) is less than this value, interpolation is allowed, and if it is greater than or equal, interpolation is not allowed. 0 is equivalent to completely disabling interpolation.
 			if (SkinMeshComponent->AnimUpdateRateParams)
 			{
 				SkinMeshComponent->AnimUpdateRateParams->MaxEvalRateForInterpolation = MaxEvalRateForInterpolation; 

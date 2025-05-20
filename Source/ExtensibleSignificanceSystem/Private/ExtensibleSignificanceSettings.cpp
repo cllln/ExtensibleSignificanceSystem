@@ -2,6 +2,36 @@
 
 #include "ExtensibleSignificanceSettings.h"
 
+FSignificanceSystemSetting* FSignificanceSystemSetting::GetSignificanceSystemSetting()
+{
+	if (UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetMutableDefault<UExtensibleSignificanceSettings>())
+	{
+		return &(ExtensibleSignificanceSettings->SignificanceSystemSetting);	
+	}
+
+	return nullptr;
+}
+
+EViewPointType FSignificanceSystemSetting::GetViewPointType()
+{
+	if (const FSignificanceSystemSetting* SignificanceSystemSetting = GetSignificanceSystemSetting())
+	{
+		return SignificanceSystemSetting->ViewPointType;
+	}
+
+	return EViewPointType::None;
+}
+
+bool FSignificanceSystemSetting::ShouldUpdateSignificance(const float DeltaTime)
+{
+	if (FSignificanceSystemSetting* SignificanceSystemSetting = GetSignificanceSystemSetting())
+	{
+		return SignificanceSystemSetting->ShouldCheck(DeltaTime);
+	}
+
+	return false;
+}
+
 bool FSignificanceSystemSetting::ShouldCheck(const float DeltaTime)
 {
 	bool bShouldCheck = false;

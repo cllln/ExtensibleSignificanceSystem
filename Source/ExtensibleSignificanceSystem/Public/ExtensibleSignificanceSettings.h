@@ -8,13 +8,13 @@
 UENUM()
 enum class EViewPointType : uint8
 {
-	// 无，不进行重要度计算
+	// None，No Significance calculations
 	None = 0,
-	// 以摄像机为基准
+	// View Point is Camera
 	Camera,
-	// 以玩家为基准
+	// View Point is Player
 	Player,
-	// 同时以摄像机和玩家为基准
+	// View Point Both Camera and Player
 	Both,
 };
 
@@ -23,14 +23,21 @@ struct FSignificanceSystemSetting
 {
 	GENERATED_BODY()
 
-	// 检测间隔
+	static FSignificanceSystemSetting* GetSignificanceSystemSetting();
+
+	static EViewPointType GetViewPointType();
+
+	static bool ShouldUpdateSignificance(const float DeltaTime);
+	
+	// Tick Interval
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystemSetting)
 	float TickInterval = 0.1f;
 	
-	// 重要度视口
+	// View Point Type
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	EViewPointType ViewPointType = EViewPointType::Player; 
 
+protected:
 	bool ShouldCheck(const float DeltaTime);
 	
 private:
@@ -38,21 +45,21 @@ private:
 	float CheckRemainTime = 0.f;
 };
 
-// 每个桶的具体设置
+// Significance Bucket Setting
 USTRUCT(BlueprintType)
 struct FSignificanceBucketSetting
 {
 	GENERATED_BODY()
 
-	// 容纳的最多对象个数
+	// Max Object Num in This Bucket
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	int32 BucketSize = 5;
 
-	// 在当前桶的重要度限制
+	// Current Bucket Significance Limit
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	float SignificanceLimit = 1500.0f;
 
-	// 当前桶的优化策略
+	// Current Bucket Optimization Strategies
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
 	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategies;
 };
@@ -67,11 +74,11 @@ struct FSignificanceSettingForSpecifyClass
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	FName Tag;
 
-	/* 重要度计算策略*/
+	// Significance Calculate Strategies
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem, Instanced)
 	TArray<class USignificanceCalculateStrategyBase*> SignificanceCalculateStrategies;
 	
-	// 每个等级
+	// Bucket Settings
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	TArray<FSignificanceBucketSetting> BucketSettings;
 

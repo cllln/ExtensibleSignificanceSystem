@@ -1,4 +1,4 @@
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #pragma once
 
@@ -56,5 +56,5 @@ protected:
 	
 	/* Reduced significance for objects that are not rendered*/ 
 	UPROPERTY(EditDefaultsOnly, Category = SignificanceSystem)
-	float SignificanceFactorWithNoRendered = 10000.0f;
+	float SignificanceFactorWithNoRendered = 3000.0f;
 };

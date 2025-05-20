@@ -4,26 +4,13 @@
 
 #include "EngineUtils.h"
 #include "ExtensibleOptimizationStrategies.h"
+#include "ExtensibleSignificanceSettings.h"
 #include "ExtensibleSignificanceSystem.h"
 #include "SignificanceCalculateStrategies.h"
 #include "Kismet/GameplayStatics.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("Significance Get Specify Class"), STAT_ExtensibleSignificanceManager_GetSpecifyClass, STATGROUP_SignificanceManager);
-
-bool UExtensibleSignificanceSubsystem::ShouldCreateSubsystem(UObject* Outer) const
-{
-	if (!Super::ShouldCreateSubsystem(Outer))
-	{
-		return false;
-	}
-	
-	const UWorld* OuterWorld = Outer->GetWorld();
-	check(OuterWorld);
-	
-	const ENetMode NetMode = OuterWorld->GetNetMode();
-	return NetMode != NM_DedicatedServer;
-}
 
 UExtensibleSignificanceSubsystem* UExtensibleSignificanceSubsystem::GetSubsystem(const UObject* WorldContext)
 {
@@ -47,31 +34,44 @@ void UExtensibleSignificanceSubsystem::Initialize(FSubsystemCollectionBase& Coll
 	Super::Initialize(Collection);
 }
 
-void UExtensibleSignificanceSubsystem::OnWorldBeginPlay(UWorld& InWorld)
-{
-	Super::OnWorldBeginPlay(InWorld);
-
-	UWorld* World = GetWorld();
-	if (!World)
-	{
-		return;
-	}
-
-	// 对已经生成的Actor处理
-	for (TActorIterator<AActor> It(World, AActor::StaticClass()); It; ++It)
-	{
-		OnActorSpawned(*It);
-	}
-
-	// 注册新生成的Actor的创建广播
-	World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &ThisClass::OnActorSpawned));
-}
-
 void UExtensibleSignificanceSubsystem::Deinitialize()
 {
 	Super::Deinitialize();
 
 	UnRegisterAllSignificance();
+}
+
+bool UExtensibleSignificanceSubsystem::ShouldCreateSubsystem(UObject* Outer) const
+{
+	if (!Super::ShouldCreateSubsystem(Outer))
+	{
+		return false;
+	}
+	
+	const UWorld* OuterWorld = Outer->GetWorld();
+	check(OuterWorld);
+	
+	const ENetMode NetMode = OuterWorld->GetNetMode();
+	return NetMode != NM_DedicatedServer;
+}
+
+void UExtensibleSignificanceSubsystem::OnWorldBeginPlay(UWorld& InWorld)
+{
+	Super::OnWorldBeginPlay(InWorld);
+
+	const UWorld* World = GetWorld();
+	if (!World)
+	{
+		return;
+	}
+
+	// Processing the Spawned actor
+	for (TActorIterator<AActor> It(World, AActor::StaticClass()); It; ++It)
+	{
+		OnActorSpawned(*It);
+	}
+	
+	World->AddOnActorSpawnedHandler(FOnActorSpawned::FDelegate::CreateUObject(this, &ThisClass::OnActorSpawned));
 }
 
 bool UExtensibleSignificanceSubsystem::DoesSupportWorldType(const EWorldType::Type WorldType) const
@@ -141,23 +141,21 @@ USignificanceOptimizationStrategySettings* UExtensibleSignificanceSubsystem::Get
 
 void UExtensibleSignificanceSubsystem::UpdateSignificance(const float DeltaTime)
 {
-	const EViewPointType ViewPointType = UExtensibleSignificanceManager::GetSignificanceSystemSetting().ViewPointType;
+	const EViewPointType ViewPointType = FSignificanceSystemSetting::GetViewPointType();
 	if (ViewPointType == EViewPointType::None)
 	{
 		return;
 	}
 
-	if (!UExtensibleSignificanceManager::GetSignificanceSystemSetting().ShouldCheck(DeltaTime))
+	if (!FSignificanceSystemSetting::ShouldUpdateSignificance(DeltaTime))
 	{
 		return;
 	}
-		
-	// 确保具有有效的世界场景和Significance Manager实例。
+	
 	if (UExtensibleSignificanceManager* Manager = UExtensibleSignificanceManager::GetExtensibleSignificanceManager(this))
 	{
-		if (APlayerController* PlayerController = GetPlayerController())
+		if (const APlayerController* PlayerController = GetPlayerController())
 		{
-			// Significance Manager使用ArrayView。构造单元素数组来容纳Transform。
 			TArray<FTransform> TransformArray;
 			if (ViewPointType == EViewPointType::Both || ViewPointType == EViewPointType::Camera)
 			{
@@ -174,8 +172,7 @@ void UExtensibleSignificanceSubsystem::UpdateSignificance(const float DeltaTime)
 					TransformArray.Add(ControlledPawn->GetTransform());
 				}
 			}
-
-			// 使用通过ArrayView传入的单元素数组来更新Significance Manager。
+			
 			Manager->Update(TArrayView<FTransform>(TransformArray));
 		}
 	}
@@ -209,7 +206,7 @@ void UExtensibleSignificanceSubsystem::RegisterSignificance(AActor* TargetActor,
 {
 	if (IsValid(TargetActor))
 	{
-		const EViewPointType ViewPointType = UExtensibleSignificanceManager::GetSignificanceSystemSetting().ViewPointType;
+		const EViewPointType ViewPointType = FSignificanceSystemSetting::GetViewPointType();
 		if (ViewPointType == EViewPointType::None)
 		{
 			return;
@@ -226,7 +223,7 @@ void UExtensibleSignificanceSubsystem::RegisterSignificance(AActor* TargetActor,
 			const UExtensibleSignificanceManager::FManagedObjectPostLodFunction PostLodFunction =
 				[this](UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, int32 OldLod, int32 NewLod)
 				{
-					// Lod没有修改就不做处理了
+					// Lod will not be processed if it is not modified.
 					if (OldLod == NewLod)
 					{
 						return;
@@ -238,7 +235,7 @@ void UExtensibleSignificanceSubsystem::RegisterSignificance(AActor* TargetActor,
 			const USignificanceManager::FManagedObjectPostSignificanceFunction PostSignificanceFunction =
 				[this](USignificanceManager::FManagedObjectInfo* ObjectInfo, float OldSignificance, float NewSignificance, bool bSignificanceChanged)
 				{
-					// 重要性没有修改就不做处理了
+					// If the Significance is not modified, it will not be dealt with.
 					if (FMath::IsNearlyEqual(OldSignificance, NewSignificance))
 					{
 						return;
@@ -256,8 +253,7 @@ void UExtensibleSignificanceSubsystem::UnRegisterSignificance(AActor* TargetActo
 {
 	if (IsValid(TargetActor))
 	{
-		const EViewPointType ViewPointType = UExtensibleSignificanceManager::GetSignificanceSystemSetting().ViewPointType;
-		if (ViewPointType == EViewPointType::None)
+		if (const EViewPointType ViewPointType = FSignificanceSystemSetting::GetViewPointType(); ViewPointType == EViewPointType::None)
 		{
 			return;
 		}
@@ -271,8 +267,7 @@ void UExtensibleSignificanceSubsystem::UnRegisterSignificance(AActor* TargetActo
 
 void UExtensibleSignificanceSubsystem::UnRegisterAllSignificance()
 {
-	const EViewPointType ViewPointType = UExtensibleSignificanceManager::GetSignificanceSystemSetting().ViewPointType;
-	if (ViewPointType == EViewPointType::None)
+	if (const EViewPointType ViewPointType = FSignificanceSystemSetting::GetViewPointType(); ViewPointType == EViewPointType::None)
 	{
 		return;
 	}
@@ -302,7 +297,7 @@ float UExtensibleSignificanceSubsystem::CalcSignificance(USignificanceManager::F
 
 void UExtensibleSignificanceSubsystem::HandlePostSignificanceChange(const USignificanceManager::FManagedObjectInfo* ObjectInfo, float OldSignificance, float NewSignificance, bool bSignificanceChanged) const
 {
-	// 重要度变化不处理了，走LOD的变化处理。
+	// The change of Significance is not processed, and the change of LOD is processed.。
 }
 
 void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, const int32 OldLod, const int32 NewLod)

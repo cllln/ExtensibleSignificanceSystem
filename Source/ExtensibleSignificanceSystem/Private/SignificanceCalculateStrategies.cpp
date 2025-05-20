@@ -1,5 +1,4 @@
-
-
+// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SignificanceCalculateStrategies.h"
 
@@ -16,7 +15,6 @@ float USignificanceCalculateStrategyWithDistance::CalculateSignificanceFactor(co
 	{
 		// Check Distance。
 		OutSignificanceFactor = FVector::Dist(Viewpoint.GetLocation(), TargetActor->GetActorLocation());
-		
 	}
 
 	return OutSignificanceFactor;

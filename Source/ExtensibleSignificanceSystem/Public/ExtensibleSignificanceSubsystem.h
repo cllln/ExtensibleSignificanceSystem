@@ -8,7 +8,7 @@
 #include "ExtensibleSignificanceSubsystem.generated.h"
 
 /**
- * 重要度管理子系统，监听Actor对象的创建销毁，将关心的Actor添加到重要度管理器里。
+ * Extensible Significance subsystem, monitor the creation and Destroy of Actor objects, and add concerned Actors to the Significance Manager.
  */
 UCLASS()
 class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleSignificanceSubsystem : public UTickableWorldSubsystem
@@ -16,7 +16,6 @@ class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleSignificanceSubsystem : public
 	GENERATED_BODY()
 
 public:
-	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 	
 	UFUNCTION(BlueprintCallable, Category = ExtensibleSignificance)
 	static UExtensibleSignificanceSubsystem* GetSubsystem(const UObject* WorldContext);
@@ -24,6 +23,8 @@ public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
 	virtual void Deinitialize() override;
+
+	virtual bool ShouldCreateSubsystem(UObject* Outer) const override;
 
 	virtual void OnWorldBeginPlay(UWorld& InWorld) override;
 	
@@ -33,13 +34,14 @@ public:
 	
 	virtual TStatId GetStatId() const override;
 
-	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClassByTag(const FName Tag);
+	const struct FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClassByTag(const FName Tag);
 	
 	const FSignificanceSettingForSpecifyClass* GetSignificanceSettingForSpecifyClass(const TSubclassOf<AActor>& TargetClass, int32 RecursionSuperCount = 5);
 
 	APlayerController* GetPlayerController() const;
 
-	USignificanceOptimizationStrategySettings* GetSignificanceOptimizationStrategySetting();
+	class USignificanceOptimizationStrategySettings* GetSignificanceOptimizationStrategySetting();
+	
 protected:
 	void UpdateSignificance(const float DeltaTime);
 	
@@ -59,13 +61,13 @@ protected:
 	void UnRegisterAllSignificance();
 	
 protected:
-	// 计算重要度
+	// Calculate Significance
 	float CalcSignificance(USignificanceManager::FManagedObjectInfo* ObjectInfo, const FTransform& Viewpoint);
 
-	// 处理重要度变化
+	// Handle Post Significance Change
 	void HandlePostSignificanceChange(const USignificanceManager::FManagedObjectInfo* ObjectInfo, float OldSignificance, float NewSignificance, bool bSignificanceChanged) const;
 
-	// 处理Lod变化
+	// Handle Post Lod Change
 	void HandlePostLodChange(const UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, int32 OldLod, int32 NewLod);
 
 	UPROPERTY()

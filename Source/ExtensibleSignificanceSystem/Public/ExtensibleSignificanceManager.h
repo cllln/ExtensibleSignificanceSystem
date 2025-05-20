@@ -3,7 +3,6 @@
 #pragma once
 
 #include "SignificanceManager.h"
-#include "ExtensibleSignificanceSettings.h"
 
 #include "ExtensibleSignificanceManager.generated.h"
 
@@ -31,22 +30,19 @@ public:
 		}
 
 		int32 LOD = -1;
-		// 原本应该所在的LOD，因为有可能原本的LOD满了，会换到新的LOD;
+		// The LOD that should have been located, because the original LOD may be full, and it will be replaced with a new LOD.
 		int32 ShouldBeLOD = -1;
 		FManagedObjectPostLodFunction PostLodFunction = nullptr;
 	};
 	
 	virtual void Update(TArrayView<const FTransform> InViewpoints) override;
 
+	// Custom Register
 	virtual void CustomRegisterObject(UObject* Object, FName Tag, FManagedObjectSignificanceFunction SignificanceFunction, FManagedObjectPostLodFunction InPostLodFunction, EPostSignificanceType InPostSignificanceType = EPostSignificanceType::None, FManagedObjectPostSignificanceFunction InPostSignificanceFunction = nullptr);
 	
-	// 获取重要度管理器
+	// Get Extensible Significance Manager
 	UFUNCTION(BlueprintCallable, Category = SignificanceSystem)
 	static UExtensibleSignificanceManager* GetExtensibleSignificanceManager(UObject* WorldContext);
-
-	// 获取重要度设置
-	UFUNCTION(BlueprintCallable, Category = SignificanceSystem)
-	static FSignificanceSystemSetting& GetSignificanceSystemSetting();
 
 	// Returns the Lod value for a given object, returns 0 if object is not managed
 	UFUNCTION(BlueprintCallable, Category = SignificanceSystem)
@@ -55,8 +51,9 @@ public:
 	// Returns true if the object is being tracked, placing the lod value in OutLod (or 0 if object is not managed)
 	bool QueryLod(UObject* Object, int32& OutLod) const;
 
+	// UnRegister All
 	void UnRegisterAllSignificance();
-private:
 	
+private:
 	TSet<FName> RegisteredTags;
 };
