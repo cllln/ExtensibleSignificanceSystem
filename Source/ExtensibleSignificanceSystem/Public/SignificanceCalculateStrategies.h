@@ -9,7 +9,7 @@
 /**
  * Significance Calculate Strategy Base
  */
-UCLASS(Abstract, BlueprintType, EditInlineNew)
+UCLASS(Abstract, BlueprintType, Blueprintable, EditInlineNew)
 class EXTENSIBLESIGNIFICANCESYSTEM_API USignificanceCalculateStrategyBase : public UObject
 {
 	GENERATED_BODY()
@@ -20,7 +20,7 @@ public:
 
 	/* Blueprint Fuc*/
 	UFUNCTION(BlueprintImplementableEvent)
-	float OnReceiveCalculateSignificanceFactor(const UObject* TargetActor, const FTransform& Viewpoint);
+	float OnReceiveCalculateSignificanceFactor(const UObject* TargetObject, const FTransform& Viewpoint);
 };
 
 /**

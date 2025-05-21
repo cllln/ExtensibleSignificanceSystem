@@ -9,7 +9,7 @@
 /**
  * Optimization Strategy Base Class
  */
-UCLASS(Abstract, BlueprintType, EditInlineNew)
+UCLASS(Abstract, BlueprintType, Blueprintable, EditInlineNew)
 class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleOptimizationStrategyBase : public UObject
 {
 	GENERATED_BODY()
@@ -21,7 +21,7 @@ public:
 
 	/* Blueprint Fuc*/
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnReceiveHandleOptimization(const UObject* TargetActor, const int32 OldLod, const int32 NewLod, const int32 ShouldBeLod, const float Significance);
+	void OnReceiveHandleOptimization(const UObject* TargetObject, const int32 OldLod, const int32 NewLod, const int32 ShouldBeLod, const float Significance);
 };
 
 /*
