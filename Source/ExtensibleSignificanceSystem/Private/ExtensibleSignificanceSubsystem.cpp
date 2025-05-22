@@ -306,7 +306,8 @@ void UExtensibleSignificanceSubsystem::HandlePostLodChange(const UExtensibleSign
 	{
 		if (SignificanceSettingForSpecifyClass->BucketSettings.IsValidIndex(NewLod))
 		{
-			for (const FSignificanceBucketSetting& SignificanceBucketSetting = SignificanceSettingForSpecifyClass->BucketSettings[NewLod]; const auto Element : SignificanceBucketSetting.OptimizationStrategies)
+			const FSignificanceBucketSetting& SignificanceBucketSetting = SignificanceSettingForSpecifyClass->BucketSettings[NewLod]; 
+			for (const auto Element : SignificanceBucketSetting.OptimizationStrategies)
 			{
 				Element->HandleOptimization(ObjectInfo, OldLod, NewLod);
 			}

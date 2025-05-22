@@ -118,7 +118,11 @@ void UAnimationOptimizationStrategy::SetAnimOptimization(AActor* TargetActor) co
 			SkinMeshComponent->VisibilityBasedAnimTickOption = VisibilityBasedAnimTickOption;
 			SkinMeshComponent->bComponentUseFixedSkelBounds = bComponentUseFixedSkelBounds;
 			SkinMeshComponent->bConsiderAllBodiesForBounds = bConsiderAllBodiesForBounds;
+
+#if ENGINE_MAJOR_VERSION > 5 || (ENGINE_MAJOR_VERSION == 5 && ENGINE_MINOR_VERSION >= 5)
+			// Code supported by UE 5.5 and above
 			SkinMeshComponent->bUseScreenRenderStateForUpdate = bUseScreenRenderStateForUpdate;
+#endif
 			SkinMeshComponent->bEnableUpdateRateOptimizations = bEnableUpdateRateOptimizations;
 			SkinMeshComponent->bRenderStatic = bRenderStatic;
 			

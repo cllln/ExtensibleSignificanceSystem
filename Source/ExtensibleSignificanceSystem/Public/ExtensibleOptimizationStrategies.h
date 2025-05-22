@@ -132,6 +132,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = AnimationOptimization)
 	bool bConsiderAllBodiesForBounds = false;
 	
+	// Code supported by UE 5.5 and above
 	/** 
 	 * If set, use the screen render flag instead of the default render flag when processing offscreen-rendering optimizations 
 	 * (such as VisibilityBasedAnimTickOption) that look to reduce animation work when the mesh is not rendered. 
