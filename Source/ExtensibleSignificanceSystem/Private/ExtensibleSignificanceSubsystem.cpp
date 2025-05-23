@@ -8,6 +8,7 @@
 #include "ExtensibleSignificanceSystem.h"
 #include "SignificanceCalculateStrategies.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
 
 
 DECLARE_CYCLE_STAT(TEXT("Significance Get Specify Class"), STAT_ExtensibleSignificanceManager_GetSpecifyClass, STATGROUP_SignificanceManager);

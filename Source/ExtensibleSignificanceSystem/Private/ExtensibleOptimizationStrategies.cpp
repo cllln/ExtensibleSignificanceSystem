@@ -2,6 +2,8 @@
 
 #include "ExtensibleOptimizationStrategies.h"
 #include "GameFramework/MovementComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 
 void UExtensibleOptimizationStrategyBase::HandleOptimization(const UExtensibleSignificanceManager::FExtendedManagedObject* ObjectInfo, const int32 OldLod, const int32 NewLod)

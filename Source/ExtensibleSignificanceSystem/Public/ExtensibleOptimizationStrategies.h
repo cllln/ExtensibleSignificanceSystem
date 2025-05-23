@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/SkinnedMeshComponent.h"
 #include "ExtensibleSignificanceManager.h"
 #include "ExtensibleOptimizationStrategies.generated.h"
 
