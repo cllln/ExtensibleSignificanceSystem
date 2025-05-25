@@ -18,6 +18,7 @@ enum class EViewPointType : uint8
 	Both,
 };
 
+// Significance basic Settings, eg: tick interval, View point type.
 USTRUCT(Blueprintable, BlueprintType)
 struct FSignificanceSystemSetting
 {
@@ -64,7 +65,7 @@ struct FSignificanceBucketSetting
 	TArray<class UExtensibleOptimizationStrategyBase*> OptimizationStrategies;
 };
 
-
+// Significance settings for specify class
 USTRUCT(Blueprintable, BlueprintType)
 struct FSignificanceSettingForSpecifyClass
 {
@@ -85,6 +86,7 @@ struct FSignificanceSettingForSpecifyClass
 	int32 GetBucketIndex(const int32 Index, const float Significance, int32& OutShouldBeLod) const;
 };
 
+// Optimization settings
 UCLASS(Blueprintable, BlueprintType, Abstract)
 class USignificanceOptimizationStrategySettings : public UObject
 {
@@ -104,6 +106,21 @@ private:
 	TMap<FName, FSignificanceSettingForSpecifyClass> SignificanceSettingsByTag;
 };
 
+// Significance Optimization Setting for Maps. If you don't need to configure an optimization strategy for a specific map, just configure the default settings。
+USTRUCT(Blueprintable, BlueprintType)
+struct FSignificanceOptimizationSettingsWithMaps
+{
+	GENERATED_BODY()
+
+	// Default Optimization settings. If you are not config Optimization for specify map in 'OptimizationStrategySettingsClassWithMap' below, we while use this default setting.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	TSubclassOf<USignificanceOptimizationStrategySettings> DefaultOptimizationStrategySettingsClass;
+
+	// Optimization settings for specify map. key: mapName, value:USignificanceOptimizationStrategySettings
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	TMap<FString, TSubclassOf<USignificanceOptimizationStrategySettings>> OptimizationStrategySettingsClassWithMap;
+};
+
 /**
  * Default settings for the Extensible Significance
  */
@@ -115,9 +132,18 @@ class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleSignificanceSettings : public 
 public:
 	UExtensibleSignificanceSettings();
 
+	// Basic setting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	FSignificanceSystemSetting SignificanceSystemSetting;
 	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	TSubclassOf<USignificanceOptimizationStrategySettings> OptimizationStrategySettingsClass;
+
+	// Default Optimization settings. If you are not config Optimization for specify platform in 'OptimizationWithPlatform' below,we while use this default setting.
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	FSignificanceOptimizationSettingsWithMaps DefaultOptimization;
+
+	// Optimization for specify platform. key: platformName, eg: Android, IOS, Windows. value FSignificanceOptimizationSettingsWithMaps
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	TMap<FString, FSignificanceOptimizationSettingsWithMaps> OptimizationWithPlatform;
 };
