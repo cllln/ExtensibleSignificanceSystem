@@ -139,10 +139,10 @@ public:
 	FSignificanceSystemSetting SignificanceSystemSetting;
 
 	// Default Optimization settings. If you are not config Optimization for specify platform in 'OptimizationWithPlatform' below,we while use this default setting.
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = OptimizationSettings)
 	FSignificanceOptimizationSettingsWithMaps DefaultOptimization;
 
 	// Optimization for specify platform. key: platformName, eg: Android, IOS, Windows. value FSignificanceOptimizationSettingsWithMaps
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = OptimizationSettings)
 	TMap<FString, FSignificanceOptimizationSettingsWithMaps> OptimizationWithPlatform;
 };
