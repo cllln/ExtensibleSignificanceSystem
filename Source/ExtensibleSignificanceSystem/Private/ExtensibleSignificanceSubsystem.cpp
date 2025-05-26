@@ -128,13 +128,19 @@ USignificanceOptimizationStrategySettings* UExtensibleSignificanceSubsystem::Get
 {
 	if (!OptimizationStrategySettings)
 	{
-		const UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetDefault<UExtensibleSignificanceSettings>();
-		if (!ExtensibleSignificanceSettings || !ExtensibleSignificanceSettings->OptimizationStrategySettingsClass)
+		UExtensibleSignificanceSettings* ExtensibleSignificanceSettings = GetMutableDefault<UExtensibleSignificanceSettings>();
+		if (!ExtensibleSignificanceSettings)
+		{
+			return nullptr;
+		}
+
+		const TSubclassOf<USignificanceOptimizationStrategySettings> SignificanceOptimizationStrategyClass = ExtensibleSignificanceSettings->GetSignificanceOptimizationStrategyClass(GetWorld());
+		if (!SignificanceOptimizationStrategyClass)
 		{
 			return nullptr;
 		}
 		
-		OptimizationStrategySettings = NewObject<USignificanceOptimizationStrategySettings>(this, ExtensibleSignificanceSettings->OptimizationStrategySettingsClass, FName("OptimizationStrategySettings"));
+		OptimizationStrategySettings = NewObject<USignificanceOptimizationStrategySettings>(this, SignificanceOptimizationStrategyClass, FName("OptimizationStrategySettings"));
 	}
 	
 	return OptimizationStrategySettings;

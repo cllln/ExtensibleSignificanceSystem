@@ -114,11 +114,11 @@ struct FSignificanceOptimizationSettingsWithMaps
 
 	// Default Optimization settings. If you are not config Optimization for specify map in 'OptimizationStrategySettingsClassWithMap' below, we while use this default setting.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	TSubclassOf<USignificanceOptimizationStrategySettings> DefaultOptimizationStrategySettingsClass;
-
+	TSoftClassPtr<USignificanceOptimizationStrategySettings> DefaultOptimizationStrategySettingsClass;
+	
 	// Optimization settings for specify map. key: mapName, value:USignificanceOptimizationStrategySettings
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	TMap<FString, TSubclassOf<USignificanceOptimizationStrategySettings>> OptimizationStrategySettingsClassWithMap;
+	TMap<FString, TSoftClassPtr<USignificanceOptimizationStrategySettings>> OptimizationStrategySettingsClassWithMap;
 };
 
 /**
@@ -131,6 +131,8 @@ class EXTENSIBLESIGNIFICANCESYSTEM_API UExtensibleSignificanceSettings : public 
 
 public:
 	UExtensibleSignificanceSettings();
+
+	TSubclassOf<USignificanceOptimizationStrategySettings> GetSignificanceOptimizationStrategyClass(const UWorld* TargetWorld);
 
 	// Basic setting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)

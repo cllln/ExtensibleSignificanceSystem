@@ -105,3 +105,43 @@ UExtensibleSignificanceSettings::UExtensibleSignificanceSettings()
 {
 	CategoryName = TEXT("Plugins");
 }
+
+TSubclassOf<USignificanceOptimizationStrategySettings> UExtensibleSignificanceSettings::GetSignificanceOptimizationStrategyClass(const UWorld* TargetWorld)
+{
+	FSignificanceOptimizationSettingsWithMaps* SignificanceOptimizationSettingsWithMaps = nullptr;
+	// First obtain the optimization strategy configuration of the platform.
+	if (const FString CurrentPlatform = FString(FPlatformProperties::IniPlatformName()); !CurrentPlatform.IsEmpty())
+	{
+		SignificanceOptimizationSettingsWithMaps = OptimizationWithPlatform.Find(CurrentPlatform);
+	}
+
+	// If no platform-specific optimization strategy is configured, the default optimization strategy is used
+	if (SignificanceOptimizationSettingsWithMaps == nullptr)
+	{
+		SignificanceOptimizationSettingsWithMaps = &DefaultOptimization;
+	}
+
+	if (!SignificanceOptimizationSettingsWithMaps)
+	{
+		return nullptr;
+	}
+
+	TSoftClassPtr<USignificanceOptimizationStrategySettings> SignificanceOptimizationStrategySettingClass = nullptr;
+	// First obtain the optimization strategy configuration for a specific map
+	if (TargetWorld)
+	{
+		const FString WorldName = TargetWorld->GetName();
+		if (const TSoftClassPtr<USignificanceOptimizationStrategySettings>* TempStrategySettings = SignificanceOptimizationSettingsWithMaps->OptimizationStrategySettingsClassWithMap.Find(WorldName))
+		{
+			SignificanceOptimizationStrategySettingClass = *TempStrategySettings;
+		}
+	}
+
+	// If no optimization strategy for a specific map is configured, get the default optimization strategy
+	if (SignificanceOptimizationStrategySettingClass.IsNull())
+	{
+		SignificanceOptimizationStrategySettingClass = SignificanceOptimizationSettingsWithMaps->DefaultOptimizationStrategySettingsClass;
+	}
+
+	return SignificanceOptimizationStrategySettingClass.LoadSynchronous();
+}
