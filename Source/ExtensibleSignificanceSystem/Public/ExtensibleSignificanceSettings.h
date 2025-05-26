@@ -137,9 +137,6 @@ public:
 	// Basic setting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
 	FSignificanceSystemSetting SignificanceSystemSetting;
-	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
-	TSubclassOf<USignificanceOptimizationStrategySettings> OptimizationStrategySettingsClass;
 
 	// Default Optimization settings. If you are not config Optimization for specify platform in 'OptimizationWithPlatform' below,we while use this default setting.
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Config, Category = SignificanceSystem)
