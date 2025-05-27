@@ -56,7 +56,7 @@ struct FSignificanceBucketSetting
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	int32 BucketSize = 5;
 
-	// Current Bucket Significance Limit
+	// Current Bucket Significance Limit，Negative numbers indicate that the current bucket has no significance limit
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = SignificanceSystem)
 	float SignificanceLimit = 1500.0f;
 

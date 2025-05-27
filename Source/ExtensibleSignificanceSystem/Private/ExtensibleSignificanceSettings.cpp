@@ -54,7 +54,7 @@ int32 FSignificanceSettingForSpecifyClass::GetBucketIndex(const int32 Index, con
 	{
 		BucketIndex++;
 		TotalIndex += Element.BucketSize;
-		if (Significance <= Element.SignificanceLimit)
+		if (Element.SignificanceLimit < 0 || Significance <= Element.SignificanceLimit)
 		{
 			if (BucketIndex < OutShouldBeLod)
 			{
