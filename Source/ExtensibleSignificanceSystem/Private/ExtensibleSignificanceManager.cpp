@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright Chengll, Inc. All Rights Reserved.
 
 #include "ExtensibleSignificanceManager.h"
 #include "ExtensibleSignificanceSettings.h"
