@@ -26,3 +26,7 @@ Explain:
 You can inherit USignificanceCalculateStrategyBase class to implement your own Significance calculation strategy. And inherit UExtensibleOptimizationStrategyBase class to implement your own optimization strategies. It's very scalable.
 
 Demo: https://github.com/cllln/SignificanceSystem
+
+https://zhuanlan.zhihu.com/p/1917170299385943956
+
+Video: https://www.youtube.com/watch?v=MBq70gjk_YA&t=5s
